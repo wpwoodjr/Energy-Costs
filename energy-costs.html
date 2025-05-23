@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The True Cost of Power: Natural Gas vs. Renewables</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!--
+    Infographic Narrative & Structure Plan:
+    1.  Title/Hook: "The True Cost of Power: Natural Gas vs. Renewables – An LCOE Deep Dive"
+    2.  Section: Understanding LCOE (Levelized Cost of Energy) - What it is, key components.
+    3.  Section: Natural Gas Generation Costs - LCOE range, CAPEX, OPEX, Fuel Cost sensitivity.
+    4.  Section: Renewable Energy Cost Landscape - Sub-sections for:
+        a.  Utility-Scale Solar PV (LCOE unsub/sub, CAPEX, CF)
+        b.  Onshore Wind (LCOE unsub/sub, CAPEX, CF)
+        c.  Offshore Wind (LCOE unsub/sub, CAPEX, CF)
+        d.  Hydropower (LCOE, CAPEX, Lifespan)
+    5.  Section: LCOE Showdown - Comparative Charts:
+        a.  Unsubsidized LCOE: NGCC vs. Solar PV vs. Onshore Wind vs. Offshore Wind (Bar Chart)
+        b.  Subsidized LCOE (Renewables) vs. Unsubsidized NGCC (Bar Chart)
+        c.  Mention Solar + Storage LCOE as a key emerging factor.
+    6.  Section: Beyond LCOE - Broader Impacts:
+        a.  Lifecycle Greenhouse Gas Emissions (gCO2eq/kWh) - Comparative Bar Chart
+        b.  Land Use Intensity (km²/TWh/yr) - Comparative Bar Chart
+        c.  Operational Water Consumption (gal/MWh) - Comparative Bar Chart
+        d.  Health & Ecosystem Impacts - Key text callouts, monetized benefits.
+    7.  Section: Conclusion - Key takeaways for different perspectives, future outlook.
+    8.  Footer with a note on data sources (Lazard, NREL, EIA, IRENA as per report).
+
+    Selected Color Palette: "Energetic & Playful"
+    -   Primary: #118AB2 (Blue)
+    -   Secondary: #06D6A0 (Green)
+    -   Accent 1: #FFD166 (Yellow)
+    -   Accent 2: #FF6B6B (Coral)
+    -   Dark Text/Elements: #073B4C (Dark Navy)
+    -   Light Background: #F0F9FF (Tailwind sky-50)
+    -   Text on Dark: #FFFFFF
+    -   Text on Light: #073B4C
+
+    Visualization Choices (All Chart.js, Canvas rendering, NO SVG, NO MERMAID):
+    -   LCOE Components: HTML/CSS list. (Goal: Organize)
+    -   NGCC LCOE Range: Horizontal Bar Chart (Lazard $45-$108/MWh). (Goal: Inform)
+    -   Solar PV LCOE: Horizontal Bar Chart (Unsub $29-92, Sub $6-73). (Goal: Inform/Compare)
+    -   Onshore Wind LCOE: Horizontal Bar Chart (Unsub $27-73, Sub $0-62). (Goal: Inform/Compare)
+    -   Offshore Wind LCOE: Horizontal Bar Chart (Unsub $74-139, Sub $62-123). (Goal: Inform/Compare)
+    -   Hydropower LCOE: Text callout. (Goal: Inform)
+    -   LCOE Showdown (Unsubsidized): Grouped Vertical Bar Chart. (Goal: Compare)
+    -   LCOE Showdown (Subsidized): Grouped Vertical Bar Chart. (Goal: Compare)
+    -   GHG Emissions: Vertical Bar Chart. (Goal: Compare)
+    -   Land Use Intensity: Vertical Bar Chart. (Goal: Compare)
+    -   Water Consumption: Vertical Bar Chart. (Goal: Compare)
+    -   Health Benefits: Text callout. (Goal: Inform)
+
+    Justification: Bar charts for comparisons. Horizontal bars for ranges. Text callouts for single numbers. All adhere to NO SVG/MERMAID, using Chart.js (Canvas) or HTML/CSS. Label wrapping and tooltip config applied.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F9FF; /* Light Sky Blue */
+            color: #073B4C; /* Dark Navy */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Default max-width, can be overridden by Tailwind */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Base height */
+            max-height: 400px; /* Max height */
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .chart-container {
+                height: 350px;
+            }
+        }
+        @media (min-width: 1024px) { /* lg breakpoint */
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .stat-card {
+            background-color: white;
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+            padding: 1.5rem; /* p-6 */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+        .section-title {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700; /* font-bold */
+            color: #073B4C; /* Dark Navy */
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .subsection-title {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            color: #118AB2; /* Blue */
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .key-stat {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #118AB2; /* Blue */
+        }
+        .key-stat-label {
+            font-size: 0.875rem;
+            color: #4A5568; /* Tailwind gray-600 */
+            margin-top: 0.25rem;
+        }
+        .nav-button {
+            background-color: #118AB2; /* Blue */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        .nav-button:hover {
+            background-color: #073B4C; /* Dark Navy */
+        }
+        .palette-blue { color: #118AB2; }
+        .palette-green { color: #06D6A0; }
+        .palette-yellow { color: #FFD166; }
+        .palette-coral { color: #FF6B6B; }
+        .palette-darknavy { color: #073B4C; }
+
+        .bg-palette-blue { background-color: #118AB2; }
+        .bg-palette-green { background-color: #06D6A0; }
+        .bg-palette-yellow { background-color: #FFD166; }
+        .bg-palette-coral { background-color: #FF6B6B; }
+        .bg-palette-darknavy { background-color: #073B4C; }
+        
+        .border-palette-blue { border-color: #118AB2; }
+        .border-palette-green { border-color: #06D6A0; }
+        .border-palette-yellow { border-color: #FFD166; }
+        .border-palette-coral { border-color: #FF6B6B; }
+
+        /* Tooltip styling */
+        .chartjs-tooltip {
+            opacity: 1;
+            pointer-events: none;
+            position: absolute;
+            background: rgba(7, 59, 76, 0.9); /* Dark Navy with opacity */
+            color: white;
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all .1s ease;
+        }
+        .chartjs-tooltip-key {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-palette-darknavy text-white py-8 shadow-lg">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2">The True Cost of Power</h1>
+            <p class="text-xl md:text-2xl text-palette-green">Natural Gas vs. Renewables: An LCOE Deep Dive</p>
+        </div>
+    </header>
+
+    <nav class="sticky top-0 bg-white shadow-md z-50 py-3 mb-8">
+        <div class="container mx-auto px-6 flex flex-wrap justify-center space-x-2 sm:space-x-4">
+            <a href="#lcoe-explained" class="nav-button text-xs sm:text-sm">What is LCOE?</a>
+            <a href="#natural-gas" class="nav-button text-xs sm:text-sm">Natural Gas</a>
+            <a href="#renewables" class="nav-button text-xs sm:text-sm">Renewables</a>
+            <a href="#lcoe-showdown" class="nav-button text-xs sm:text-sm">LCOE Showdown</a>
+            <a href="#beyond-lcoe" class="nav-button text-xs sm:text-sm">Beyond LCOE</a>
+            <a href="#conclusion" class="nav-button text-xs sm:text-sm">Conclusion</a>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 sm:px-6 py-8">
+
+        <section id="lcoe-explained" class="mb-12 stat-card">
+            <h2 class="section-title">Understanding LCOE</h2>
+            <p class="text-lg mb-4 text-center max-w-3xl mx-auto">The <strong>Levelized Cost of Energy (LCOE)</strong> is a crucial metric for comparing the lifetime costs of different electricity generation technologies. It represents the average revenue per unit of electricity (e.g., per Megawatt-hour, MWh) needed to recover both the initial investment and ongoing operational costs over a plant's lifespan.</p>
+            <div class="grid md:grid-cols-2 gap-6 items-center">
+                <div>
+                    <h3 class="subsection-title text-palette-darknavy">Key Components of LCOE:</h3>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li><strong>Capital Expenditures (CAPEX):</strong> Upfront costs for design, equipment, and construction.</li>
+                        <li><strong>Operating Expenditures (OPEX):</strong> Ongoing costs for fuel, maintenance, labor, and insurance.
+                            <ul class="list-circle list-inside ml-4">
+                                <li>Fixed O&M: Costs regardless of generation (e.g., salaries, rent).</li>
+                                <li>Variable O&M: Costs that change with output (e.g., fuel, consumables).</li>
+                            </ul>
+                        </li>
+                        <li><strong>Fuel Costs:</strong> A major factor for fossil fuel plants, zero for most renewables.</li>
+                        <li><strong>Capacity Factor:</strong> Actual energy produced vs. maximum possible output.</li>
+                        <li><strong>Discount Rate:</strong> Reflects the time value of money and investment risk.</li>
+                        <li><strong>Economic Lifespan:</strong> The period over which costs are "levelized".</li>
+                        <li><strong>Taxes & Subsidies:</strong> Can significantly impact the final LCOE.</li>
+                    </ul>
+                </div>
+                <div class="text-center p-4 border-2 border-palette-green rounded-lg bg-green-50">
+                     <span class="text-6xl palette-green">💡</span>
+                    <p class="mt-2 text-palette-darknavy font-semibold">LCOE helps compare technologies on an "apples-to-apples" cost basis for new projects.</p>
+                    <p class="text-sm text-gray-600 mt-1">However, it doesn't capture all system value aspects or externalities like environmental impact.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="natural-gas" class="mb-12">
+            <h2 class="section-title">Natural Gas: The Conventional Baseline</h2>
+            <p class="text-lg mb-6 text-center max-w-3xl mx-auto">Natural Gas Combined Cycle (NGCC) plants are a common generation source. Their LCOE is highly sensitive to fuel prices and how often they operate (capacity factor).</p>
+            <div class="grid md:grid-cols-2 gap-8 items-start">
+                <div class="stat-card">
+                    <h3 class="subsection-title">NGCC LCOE (Unsubsidized, New Build)</h3>
+                    <p class="text-sm text-gray-600 mb-1">(Lazard 2024)</p>
+                    <div class="chart-container h-64 md:h-80">
+                        <canvas id="ngccLcoeChart"></canvas>
+                    </div>
+                    <p class="text-center mt-2 text-sm text-gray-700">Range primarily reflects 30% (peaking) to 90% (baseload) capacity factor.</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="subsection-title">Key Cost Drivers & Assumptions</h3>
+                     <div class="space-y-3 mt-4 text-sm">
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>CAPEX (Lazard):</span> <strong class="palette-blue">$850 - $1,300 /kW</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Fixed O&M (Lazard):</span> <strong class="palette-blue">$10 - $25.5 /kW-yr</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Variable O&M (ex-fuel, Lazard):</span> <strong class="palette-blue">$2.75 - $5.00 /MWh</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Assumed Fuel Price (Lazard 2024):</span> <strong class="palette-blue">$3.45 /MMBtu</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Lifespan for LCOE (Lazard):</span> <strong class="palette-blue">20 years</strong></div>
+                        <p class="text-xs text-gray-600 mt-2">EIA AEO2023 projects an average NGCC LCOE of <strong>$89.33/MWh</strong> (for 2028, including any tax credits).</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="renewables" class="mb-12">
+            <h2 class="section-title">Renewables Rising: A Cost Dive</h2>
+            <p class="text-lg mb-6 text-center max-w-3xl mx-auto">Renewable energy technologies have seen significant cost declines, though recent macroeconomic pressures have caused some stabilization or slight increases. U.S. federal subsidies (ITC/PTC) play a major role in their competitiveness.</p>
+
+            <article class="mb-8 stat-card">
+                <h3 class="subsection-title">Utility-Scale Solar PV</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">(Lazard 2024, U.S. Data)</p>
+                        <div class="chart-container h-72 md:h-80">
+                            <canvas id="solarLcoeChart"></canvas>
+                        </div>
+                         <p class="text-xs text-center mt-1 text-gray-500">Subsidized typically $19-$34/MWh with full credit value.</p>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div class="p-3 bg-yellow-50 rounded-lg shadow">
+                            <p class="font-semibold palette-yellow">Global Avg. LCOE (IRENA 2023): <strong class="text-xl">$44/MWh</strong></p>
+                        </div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>CAPEX (Lazard):</span> <strong class="palette-blue">$850 - $1,400 /kW</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Fixed O&M (Lazard):</span> <strong class="palette-blue">$11 - $14 /kW-yr</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Capacity Factor (Lazard):</span> <strong class="palette-blue">15% - 30%</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Lifespan (Lazard):</span> <strong class="palette-blue">35 years</strong></div>
+                    </div>
+                </div>
+            </article>
+
+            <article class="mb-8 stat-card">
+                <h3 class="subsection-title">Onshore Wind</h3>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">(Lazard 2024, U.S. Data)</p>
+                        <div class="chart-container h-72 md:h-80">
+                            <canvas id="onshoreWindLcoeChart"></canvas>
+                        </div>
+                    </div>
+                     <div class="space-y-3 text-sm">
+                        <div class="p-3 bg-green-50 rounded-lg shadow">
+                             <p class="font-semibold palette-green">Global Avg. LCOE (IRENA 2023): <strong class="text-xl">$33/MWh</strong></p>
+                        </div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>CAPEX (Lazard):</span> <strong class="palette-blue">$1,300 - $1,900 /kW</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Fixed O&M (Lazard):</span> <strong class="palette-blue">$24.5 - $40 /kW-yr</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Capacity Factor (Lazard):</span> <strong class="palette-blue">30% - 55%</strong></div>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>Lifespan (Lazard):</span> <strong class="palette-blue">30 years</strong></div>
+                    </div>
+                </div>
+            </article>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <article class="mb-8 stat-card">
+                    <h3 class="subsection-title">Offshore Wind (Fixed-Bottom)</h3>
+                     <div class="grid md:grid-cols-2 gap-4 items-center">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">(Lazard 2024, U.S. Data)</p>
+                            <div class="chart-container h-64 md:h-72">
+                                <canvas id="offshoreWindLcoeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm mt-4 md:mt-0">
+                            <div class="p-2 bg-blue-50 rounded-lg shadow">
+                                <p class="font-semibold palette-blue">Global Avg. LCOE (IRENA 2023): <strong class="text-lg">$75/MWh</strong></p>
+                            </div>
+                            <div class="flex justify-between p-1 bg-sky-50 rounded text-xs"><span>CAPEX (Lazard):</span> <strong class="palette-blue">$3.75k - $5.75k /kW</strong></div>
+                            <div class="flex justify-between p-1 bg-sky-50 rounded text-xs"><span>Fixed O&M (Lazard):</span> <strong class="palette-blue">$60 - $91.5 /kW-yr</strong></div>
+                            <div class="flex justify-between p-1 bg-sky-50 rounded text-xs"><span>Capacity Factor (Lazard):</span> <strong class="palette-blue">45% - 55%</strong></div>
+                            <div class="flex justify-between p-1 bg-sky-50 rounded text-xs"><span>Lifespan (Lazard):</span> <strong class="palette-blue">30 years</strong></div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="mb-8 stat-card">
+                    <h3 class="subsection-title">Hydropower (New Projects)</h3>
+                    <div class="space-y-3 text-sm mt-4">
+                        <div class="p-3 bg-teal-50 rounded-lg shadow">
+                            <p class="font-semibold palette-darknavy">EIA AEO2023 Avg. LCOE (2028, w/credits): <strong class="text-xl palette-blue">$57.12/MWh</strong></p>
+                        </div>
+                         <div class="p-3 bg-teal-50 rounded-lg shadow">
+                            <p class="font-semibold palette-darknavy">Global Avg. LCOE (IRENA 2023): <strong class="text-xl palette-blue">$57/MWh</strong></p>
+                        </div>
+                        <p class="text-xs text-gray-600">CAPEX is highly site-specific and can be very high for new developments (NPD/NSD).</p>
+                        <div class="flex justify-between p-2 bg-sky-50 rounded"><span>NREL ATB Lifespan:</span> <strong class="palette-blue">100 years</strong></div>
+                        <p class="text-xs text-gray-600">Long lifespan helps amortize high initial costs.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="lcoe-showdown" class="mb-12">
+            <h2 class="section-title">LCOE Showdown: Head-to-Head</h2>
+            <p class="text-lg mb-6 text-center max-w-3xl mx-auto">Let's compare the LCOE ranges directly. Data below is from Lazard 2024 (U.S.) and shows the minimum and maximum of the LCOE ranges.</p>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="stat-card">
+                    <h3 class="subsection-title">Unsubsidized LCOE Comparison</h3>
+                    <div class="chart-container h-[400px] md:h-[450px]">
+                        <canvas id="lcoeUnsubsidizedChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center mt-2 text-gray-600">Shows full LCOE range ($/MWh).</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="subsection-title">Subsidized Renewables vs. NGCC</h3>
+                    <div class="chart-container h-[400px] md:h-[450px]">
+                        <canvas id="lcoeSubsidizedChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center mt-2 text-gray-600">NGCC is unsubsidized. Renewables show subsidized LCOE range ($/MWh).</p>
+                </div>
+            </div>
+            <div class="mt-8 stat-card bg-palette-yellow text-palette-darknavy">
+                <h3 class="subsection-title text-palette-darknavy">Emerging Factor: Solar PV + Storage</h3>
+                <p>Combining solar with battery storage enhances grid value by addressing intermittency. However, it comes at a higher cost:</p>
+                <p class="key-stat text-palette-darknavy mt-2">$60 - $210 /MWh</p>
+                <p class="key-stat-label text-gray-700">(Unsubsidized LCOE for Solar PV + Storage, Lazard 2024)</p>
+            </div>
+        </section>
+
+        <section id="beyond-lcoe" class="mb-12">
+            <h2 class="section-title">Beyond the Bill: The Bigger Picture</h2>
+            <p class="text-lg mb-6 text-center max-w-3xl mx-auto">LCOE is just one piece of the puzzle. Environmental and social impacts (externalities) and opportunity costs are also critical.</p>
+            
+            <div class="grid md:grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="stat-card lg:col-span-1">
+                    <h3 class="subsection-title">Lifecycle GHG Emissions</h3>
+                    <p class="text-sm text-gray-600 mb-2">Includes manufacturing, construction, operation, and decommissioning (g CO₂eq/kWh, NREL LCA Harmonization).</p>
+                    <div class="chart-container h-80">
+                        <canvas id="ghgChart"></canvas>
+                    </div>
+                </div>
+                <div class="stat-card lg:col-span-1">
+                    <h3 class="subsection-title">Land Use Intensity</h3>
+                    <p class="text-sm text-gray-600 mb-2">Lifecycle land use, including fuel extraction (km²/TWh/year, McDonald et al. via EIRP).</p>
+                     <div class="chart-container h-80">
+                        <canvas id="landUseChart"></canvas>
+                    </div>
+                </div>
+                 <div class="stat-card lg:col-span-1">
+                    <h3 class="subsection-title">Operational Water Consumption</h3>
+                    <p class="text-sm text-gray-600 mb-2">Gallons per MWh. NGCC is withdrawal; Hydro is reservoir evaporation (EIA, NREL).</p>
+                     <div class="chart-container h-80">
+                        <canvas id="waterConsumptionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 stat-card bg-palette-green text-white">
+                <h3 class="subsection-title text-white">Health & Ecosystem Impacts</h3>
+                <div class="grid md:grid-cols-2 gap-6 items-center">
+                    <div>
+                        <p class="mb-2">Natural gas combustion releases pollutants (NOx, SO2, PM2.5) linked to health issues. Renewables displace these, offering significant benefits.</p>
+                        <p class="text-3xl font-bold text-palette-darknavy">$10 - $100 /MWh</p>
+                        <p class="text-sm text-palette-darknavy">Estimated health & environmental benefits from wind/solar displacing conventional generation (PNAS study).</p>
+                    </div>
+                    <div class="text-sm space-y-2">
+                        <p><strong class="text-palette-darknavy">Natural Gas:</strong> Habitat fragmentation from infrastructure, pollution risks.</p>
+                        <p><strong class="text-palette-darknavy">Solar/Wind:</strong> Land use for farms, potential bird/bat impacts (wind), manufacturing footprint.</p>
+                        <p><strong class="text-palette-darknavy">Hydropower:</strong> Significant river ecosystem alteration, fish migration blockage.</p>
+                        <p class="mt-2">All energy projects have some habitat impact, requiring careful siting and mitigation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="conclusion" class="mb-12 stat-card">
+            <h2 class="section-title">The Bottom Line: It's Complicated</h2>
+            <p class="text-lg mb-4">The "cheapest" energy source depends on what metrics are prioritized, location, policies, and how we value broader impacts.</p>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="font-semibold text-xl palette-blue mb-1">Key LCOE Takeaways (U.S. Focus):</h3>
+                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                        <li><strong>With Subsidies:</strong> New utility-scale solar PV and onshore wind are often the lowest-cost options for new generation (Lazard: Solar as low as $6/MWh, Wind as low as $0/MWh).</li>
+                        <li><strong>Unsubsidized:</strong> Solar and onshore wind are still highly competitive with, and often cheaper than, new NGCC ($45-$108/MWh).</li>
+                        <li><strong>Natural Gas:</strong> LCOE highly sensitive to volatile fuel prices and capacity factor.</li>
+                        <li><strong>Offshore Wind & New Hydro:</strong> Generally higher LCOEs but offer benefits like high capacity factors (offshore) or very long lifespans (hydro).</li>
+                        <li><strong>Recent Trends:</strong> Macroeconomic pressures (inflation, interest rates) have caused some recent cost increases for new renewable projects after years of decline.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-xl palette-green mb-1">Addressing Different Perspectives:</h3>
+                    <div class="grid md:grid-cols-3 gap-4 text-sm">
+                        <div class="p-4 bg-sky-50 rounded-lg">
+                            <strong class="block palette-darknavy">For the Data-Driven Skeptic of Solar:</strong>
+                            <p class="mt-1">LCOE ranges show variability. Integrating variable renewables (like solar) has system costs (e.g., storage, grid upgrades) not fully in standalone LCOE. Solar + Storage LCOE is higher ($60-$210/MWh unsubsidized).</p>
+                        </div>
+                        <div class="p-4 bg-sky-50 rounded-lg">
+                            <strong class="block palette-darknavy">For the Fossil Fuel Proponent:</strong>
+                            <p class="mt-1">NGCC offers power density and dispatchability. Its LCOE can be competitive at high capacity factors and low fuel prices. Externalities are a key discussion point presented factually.</p>
+                        </div>
+                        <div class="p-4 bg-sky-50 rounded-lg">
+                            <strong class="block palette-darknavy">For the Clean Energy Advocate:</strong>
+                            <p class="mt-1">Solar and wind show significantly lower lifecycle GHG emissions, minimal operational water use, and major public health benefits by displacing fossil fuels. Land use and materials are areas for responsible development.</p>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-lg font-semibold text-center palette-darknavy mt-6">Ultimately, a diverse energy portfolio, leveraging multiple technologies while mitigating their impacts, alongside supportive policies, is key for a cost-effective, reliable, and sustainable energy future.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-palette-darknavy text-white text-center py-8 mt-12">
+        <p class="text-sm">Infographic based on data primarily from Lazard (2024), NREL (ATB 2024, Cost of Wind Energy Review 2024), EIA (AEO2023), and IRENA (2023).</p>
+        <p class="text-xs mt-1">This is a simplified visual representation for informational purposes.</p>
+    </footer>
+
+    <script>
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.plugins.tooltip.enabled = false; // Disable default and use custom external
+
+        const primaryColor = '#118AB2'; // Blue
+        const secondaryColor = '#06D6A0'; // Green
+        const accentColor1 = '#FFD166'; // Yellow
+        const accentColor2 = '#FF6B6B'; // Coral
+        const darkColor = '#073B4C'; // Dark Navy
+
+        function wrapLabel(str, maxWidth) {
+            if (!str) return '';
+            if (str.length <= maxWidth) {
+                return str;
+            }
+            const words = str.split(' ');
+            let lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + word).length > maxWidth && currentLine.length > 0) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            lines.push(currentLine.trim());
+            return lines.filter(line => line.length > 0);
+        }
+        
+        const customTooltip = (context) => {
+            let tooltipEl = document.getElementById('chartjs-tooltip');
+
+            if (!tooltipEl) {
+                tooltipEl = document.createElement('div');
+                tooltipEl.id = 'chartjs-tooltip';
+                tooltipEl.classList.add('chartjs-tooltip');
+                document.body.appendChild(tooltipEl);
+            }
+
+            const tooltipModel = context.tooltip;
+            if (tooltipModel.opacity === 0) {
+                tooltipEl.style.opacity = '0';
+                return;
+            }
+
+            tooltipEl.classList.remove('above', 'below', 'no-transform');
+            if (tooltipModel.yAlign) {
+                tooltipEl.classList.add(tooltipModel.yAlign);
+            } else {
+                tooltipEl.classList.add('no-transform');
+            }
+
+            function getBody(bodyItem) {
+                return bodyItem.lines;
+            }
+
+            if (tooltipModel.body) {
+                const titleLines = tooltipModel.title || [];
+                const bodyLines = tooltipModel.body.map(getBody);
+
+                let innerHtml = '';
+
+                titleLines.forEach(function(title) {
+                    innerHtml += '<div class="font-semibold mb-1">' + title + '</div>';
+                });
+                
+                innerHtml += '<ul>';
+                bodyLines.forEach(function(body, i) {
+                    const colors = tooltipModel.labelColors[i];
+                    let style = 'background:' + colors.backgroundColor;
+                    style += '; border-color:' + colors.borderColor;
+                    style += '; border-width: 2px';
+                    const span = '<span class="chartjs-tooltip-key" style="' + style + '"></span>';
+                    innerHtml += '<li class="flex items-center">' + span + body + '</li>';
+                });
+                innerHtml += '</ul>';
+
+                tooltipEl.innerHTML = innerHtml;
+            }
+
+            const position = context.chart.canvas.getBoundingClientRect();
+            
+            tooltipEl.style.opacity = '1';
+            tooltipEl.style.position = 'absolute';
+            tooltipEl.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 'px';
+            tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY + 'px';
+            tooltipEl.style.padding = tooltipModel.padding + 'px ' + tooltipModel.padding + 'px';
+            tooltipEl.style.pointerEvents = 'none';
+        };
+
+        const sharedTooltipOptions = {
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
+            plugins: {
+                tooltip: {
+                    enabled: false, // Use external tooltip
+                    external: customTooltip,
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                              return label.join(' ');
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        };
+        
+        const sharedBarOptions = (titleText, xLabel = '', yLabel = 'LCOE ($/MWh)') => ({
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: yLabel, font: { weight: '600' } },
+                    grid: { color: 'rgba(200, 200, 200, 0.2)' }
+                },
+                x: {
+                    title: { display: xLabel ? true : false, text: xLabel, font: { weight: '600' } },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { position: 'top', labels: { font: { size: 10 }}},
+                title: { display: true, text: titleText, font: { size: 14, weight: '600' }, padding: { top: 10, bottom:10 } },
+                 ...sharedTooltipOptions.plugins
+            },
+            interaction: sharedTooltipOptions.interaction
+        });
+
+        // Chart 1: NGCC LCOE
+        new Chart(document.getElementById('ngccLcoeChart'), {
+            type: 'bar',
+            data: {
+                labels: ['NGCC Unsubsidized LCOE'],
+                datasets: [{
+                    label: 'Min LCOE ($/MWh)',
+                    data: [45],
+                    backgroundColor: primaryColor,
+                    borderColor: darkColor,
+                    borderWidth: 1,
+                    barThickness: 50,
+                }, {
+                    label: 'Max LCOE ($/MWh)',
+                    data: [108],
+                    backgroundColor: accentColor1,
+                     borderColor: darkColor,
+                    borderWidth: 1,
+                    barThickness: 50,
+                }]
+            },
+            options: { ...sharedBarOptions('Natural Gas CC LCOE Range ($/MWh)', '', 'LCOE ($/MWh)'), indexAxis: 'y', scales: { x: { beginAtZero: true, title: {display: true, text: 'LCOE ($/MWh)'}}, y: { display: false }} }
+        });
+
+        // Chart 2: Solar PV LCOE
+        new Chart(document.getElementById('solarLcoeChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Unsubsidized', 'Subsidized (ITC/PTC)'],
+                datasets: [
+                    {
+                        label: 'Min LCOE ($/MWh)',
+                        data: [29, 6],
+                        backgroundColor: primaryColor,
+                        stack: 'Stack 0',
+                    },
+                    {
+                        label: 'Max LCOE ($/MWh)',
+                        data: [92, 73],
+                        backgroundColor: accentColor1,
+                        stack: 'Stack 0',
+                    }
+                ]
+            },
+             options: { ...sharedBarOptions('Solar PV LCOE Range ($/MWh)'), indexAxis: 'y', scales: { x: { beginAtZero: true, title: {display: true, text: 'LCOE ($/MWh)'}}, y: { ticks: { callback: function(value, index, values) { return wrapLabel(this.getLabelForValue(value), 10); } } }} }
+        });
+
+        // Chart 3: Onshore Wind LCOE
+        new Chart(document.getElementById('onshoreWindLcoeChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Unsubsidized', 'Subsidized (PTC)'],
+                datasets: [
+                    {
+                        label: 'Min LCOE ($/MWh)',
+                        data: [27, 0],
+                        backgroundColor: secondaryColor,
+                        stack: 'Stack 0',
+                    },
+                    {
+                        label: 'Max LCOE ($/MWh)',
+                        data: [73, 62],
+                        backgroundColor: accentColor1,
+                        stack: 'Stack 0',
+                    }
+                ]
+            },
+            options: { ...sharedBarOptions('Onshore Wind LCOE Range ($/MWh)'), indexAxis: 'y', scales: { x: { beginAtZero: true, title: {display: true, text: 'LCOE ($/MWh)'}}, y: { ticks: { callback: function(value, index, values) { return wrapLabel(this.getLabelForValue(value), 10); } } }} }
+        });
+
+        // Chart 4: Offshore Wind LCOE
+        new Chart(document.getElementById('offshoreWindLcoeChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Unsubsidized', 'Subsidized (ITC/PTC)'],
+                 datasets: [
+                    {
+                        label: 'Min LCOE ($/MWh)',
+                        data: [74, 62],
+                        backgroundColor: primaryColor,
+                        stack: 'Stack 0',
+                    },
+                    {
+                        label: 'Max LCOE ($/MWh)',
+                        data: [139, 123],
+                        backgroundColor: accentColor2,
+                        stack: 'Stack 0',
+                    }
+                ]
+            },
+            options: { ...sharedBarOptions('Offshore Wind LCOE Range ($/MWh)'), indexAxis: 'y', scales: { x: { beginAtZero: true, title: {display: true, text: 'LCOE ($/MWh)'}}, y: { ticks: { callback: function(value, index, values) { return wrapLabel(this.getLabelForValue(value), 10); } } }} }
+        });
+        
+        // Chart 5: LCOE Showdown Unsubsidized
+        const unsubLabels = ['Natural Gas CC', 'Utility Solar PV', 'Onshore Wind', 'Offshore Wind'];
+        new Chart(document.getElementById('lcoeUnsubsidizedChart'), {
+            type: 'bar',
+            data: {
+                labels: unsubLabels.map(l => wrapLabel(l, 16)),
+                datasets: [
+                    {
+                        label: 'Min LCOE ($/MWh)',
+                        data: [45, 29, 27, 74],
+                        backgroundColor: primaryColor,
+                    },
+                    {
+                        label: 'Max LCOE ($/MWh)',
+                        data: [108, 92, 73, 139],
+                        backgroundColor: accentColor1,
+                    }
+                ]
+            },
+            options: sharedBarOptions('Unsubsidized LCOE Comparison (Lazard 2024)')
+        });
+
+        // Chart 6: LCOE Showdown Subsidized
+        const subLabels = ['NGCC (Unsub.)', 'Solar PV (Sub.)', 'Onshore Wind (Sub.)', 'Offshore Wind (Sub.)'];
+        new Chart(document.getElementById('lcoeSubsidizedChart'), {
+            type: 'bar',
+            data: {
+                labels: subLabels.map(l => wrapLabel(l, 16)),
+                datasets: [
+                    {
+                        label: 'Min LCOE ($/MWh)',
+                        data: [45, 6, 0, 62],
+                        backgroundColor: secondaryColor,
+                    },
+                    {
+                        label: 'Max LCOE ($/MWh)',
+                        data: [108, 73, 62, 123],
+                        backgroundColor: accentColor2,
+                    }
+                ]
+            },
+            options: sharedBarOptions('Subsidized Renewables vs. Unsubsidized NGCC (Lazard 2024)')
+        });
+
+        // Chart 7: GHG Emissions
+        const ghgLabels = ['Natural Gas CC', 'Solar PV', 'Wind', 'Hydropower'];
+        new Chart(document.getElementById('ghgChart'), {
+            type: 'bar',
+            data: {
+                labels: ghgLabels.map(l => wrapLabel(l,16)),
+                datasets: [{
+                    label: 'g CO₂eq/kWh',
+                    data: [486, 43, 13, 21],
+                    backgroundColor: [accentColor2, accentColor1, secondaryColor, primaryColor],
+                }]
+            },
+            options: sharedBarOptions('Lifecycle GHG Emissions', '', 'g CO₂eq/kWh')
+        });
+
+        // Chart 8: Land Use Intensity
+        const landUseLabels = ['Natural Gas CC', 'Solar PV', 'Onshore Wind', 'Hydropower'];
+        new Chart(document.getElementById('landUseChart'), {
+            type: 'bar',
+            data: {
+                labels: landUseLabels.map(l => wrapLabel(l,16)),
+                datasets: [{
+                    label: 'km²/TWh/year (Lifecycle)',
+                    data: [50, 100, 300, 200],
+                     backgroundColor: [accentColor2, accentColor1, secondaryColor, primaryColor],
+                }]
+            },
+            options: sharedBarOptions('Lifecycle Land Use Intensity', '', 'km²/TWh/year')
+        });
+        
+        // Chart 9: Water Consumption
+        const waterLabels = ['NGCC (Withdrawal)', 'Solar PV (Op.)', 'Wind (Op.)', 'Hydro (Reservoir Evap.)'];
+        new Chart(document.getElementById('waterConsumptionChart'), {
+            type: 'bar',
+            data: {
+                labels: waterLabels.map(l => wrapLabel(l,16)),
+                datasets: [{
+                    label: 'Operational Water Use (gal/MWh)',
+                    data: [2803, 5, 5, 18000], // Using 5 as a token for "negligible" to show on chart
+                    backgroundColor: [accentColor2, accentColor1, secondaryColor, primaryColor],
+                }]
+            },
+            options: { ...sharedBarOptions('Operational Water Consumption', '', 'gal/MWh (Logarithmic)'), scales: { y: { type: 'logarithmic', title: {display: true, text: 'gal/MWh (Logarithmic)'}} } }
+        });
+
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    const offsetTop = targetElement.offsetTop - 80; // Adjust for sticky nav height
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
